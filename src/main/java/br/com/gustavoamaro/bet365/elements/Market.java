@@ -2,9 +2,12 @@ package br.com.gustavoamaro.bet365.elements;
 import java.util.List;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 
 public class Market {
+	
+	private static final String MAIN_LISTS_MARKET_NAME = "Principais Listas";
 
 	private WebElement element;
 	
@@ -17,7 +20,11 @@ public class Market {
 	}
 
 	public void open() {
-		element.click();
+		try {
+			element.click();
+		} catch (WebDriverException e) {
+			System.out.println(name + " - " + e.getMessage());
+		}
 	}
 
 	public String getName() {
@@ -35,5 +42,9 @@ public class Market {
 			championships=ChampionshipUtil.adapt(element.findElements(By.className("sm-CouponLink")));
 		}
 		return championships;
+	}
+
+	public boolean isMainListsMarket() {
+		return getName().equals(MAIN_LISTS_MARKET_NAME);
 	}
 }

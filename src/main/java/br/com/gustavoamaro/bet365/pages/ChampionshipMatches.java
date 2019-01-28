@@ -11,13 +11,16 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import br.com.gustavoamaro.bet365.Parameters;
 import br.com.gustavoamaro.bet365.elements.Match;
+import lombok.Getter;
 
 public class ChampionshipMatches {
 
 	private WebDriver driver;
-	
+
 	private List<Match> matches = new LinkedList<Match>();
+	private @Getter List<Match> filteredMatches = new LinkedList<Match>();
 
 	public ChampionshipMatches(WebDriver driver) {
 		this.driver = driver;
@@ -30,14 +33,24 @@ public class ChampionshipMatches {
 		return matches;
 	}
 
-	private void loadMatches() {
+	public ChampionshipMatches loadMatches() {
 		WebDriverWait wait = new WebDriverWait(driver, 10);
 		try {
 			wait.until(ExpectedConditions.visibilityOfElementLocated(By.className("sl-MarketCouponFixtureLabelBase")));
 			loadMatchesData();
 			loadOddsData();
+			filterMatches();
 		} catch (TimeoutException e) {
 			System.out.println("As Apostas fecharam ou foram suspensas.");
+		}
+		return this;
+	}
+
+	private void filterMatches() {
+		for (Match match : matches) {
+			if(match.matches(Parameters.getDate(), Parameters.getBellowOdd(),Parameters.getAboveOdd())) {
+				filteredMatches.add(match);
+			}
 		}
 	}
 

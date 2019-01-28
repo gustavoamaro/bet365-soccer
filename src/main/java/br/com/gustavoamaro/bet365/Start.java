@@ -1,10 +1,7 @@
 package br.com.gustavoamaro.bet365;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
@@ -17,7 +14,7 @@ import br.com.gustavoamaro.bet365.pages.Soccer;
 import br.com.gustavoamaro.bet365.pages.Welcome;
 
 public class Start {
-	
+
 	static {
 		System.setProperty("webdriver.chrome.driver", "chromedriver");
 	}
@@ -33,15 +30,11 @@ public class Start {
 			
 			List<Market> markets = soccer.getMarkets();
 			
-			for (Market market : markets) {
-				if(market.getName().equals("Principais Listas")) {
-					continue;
-				}
-				market.getChampionships();
-			}
+			// Load markets championships
+			markets.stream().filter(m -> !m.isMainListsMarket()).forEach(m -> m.getChampionships());
 			
 			for (Market market : markets) {
-				if(market.getName().equals("Principais Listas")) {
+				if(market.isMainListsMarket()) {
 					continue;
 				}
 				
@@ -55,15 +48,19 @@ public class Start {
 							m -> m.getName().equals(market.getName()))
 					.findFirst().get().getChampionships().stream().filter(
 							c -> c.getName().equals(championship.getName())).findFirst().get();
-					
-					System.out.println(">> Campeonato: "+champ.getName());
 
+					System.out.println(">> Campeonato: "+champ.getName());
 					ChampionshipMatches championshipMatches = champ.open(driver);
-					System.out.println(">>> Partidas encontradas:");
 					
-					List<Match> matches = championshipMatches.getMatches();
+					List<Match> matches = championshipMatches.loadMatches().getFilteredMatches();
 					championship.getMatches().addAll(matches);
-					matches.stream().forEach(m -> System.out.println(">>>> "+m));
+					
+					if(matches.isEmpty()) {
+						System.out.println(">>> Nenhuma partida encontrada com os parâmetros informados.");
+					}else {
+						System.out.println(">>> Partidas encontradas:");
+						matches.stream().forEach(m -> System.out.println(">>>> "+m));
+					}
 				}
 			}
 			

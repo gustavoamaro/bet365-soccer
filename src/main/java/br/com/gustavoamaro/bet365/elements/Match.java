@@ -30,4 +30,22 @@ public class Match {
 	public String toString() {
 		return date + " " + time + " - " + teams + " - " + leftOdd + " x " + rightOdd;
 	}
+
+	public boolean matches(String date, float bellowOdd, float aboveOdd) {
+		return dateMatches(date)
+				&& bellowOddMatches(bellowOdd)
+				&& aboveOddMatches(aboveOdd);
+	}
+
+	private boolean aboveOddMatches(float aboveOdd) {
+		return rightOdd >= aboveOdd || leftOdd >= aboveOdd;
+	}
+
+	private boolean bellowOddMatches(float bellowOdd) {
+		return leftOdd <= bellowOdd || rightOdd <= bellowOdd;
+	}
+
+	private boolean dateMatches(String date) {
+		return date==null || this.date.endsWith(date);
+	}
 }
